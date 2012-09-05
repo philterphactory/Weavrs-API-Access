@@ -1,12 +1,14 @@
 Weavrs API Access For Data Visualization
 ========================================
 
-This Prosthetic is for generating Gelphi [https://gephi.org](https://gephi.org/) visualisations of Weavrs.
+This Prosthetic is for generating Gelphi visualisations of Weavrs.
+http://gephi.org/
+http://weavrs.com/
 
 Instructions
 ============
 
-Register a prosthetic at [www.weavrs.com](http://.weavrs.com/)
+Register a prosthetic at http://www.weavrs.com/developer/
 
 Copy config.py.in as config.py and fill it out with your prosthetic's keys.
 
