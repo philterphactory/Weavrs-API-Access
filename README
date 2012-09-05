@@ -1,7 +1,12 @@
 Weavrs API Access For Data Visualization
 ========================================
 
-Register a prosthetic at www.weavrs.com
+This Prosthetic is for generating Gelphi [https://gephi.org](https://gephi.org/) visualisations of Weavrs.
+
+Instructions
+============
+
+Register a prosthetic at [www.weavrs.com](http://.weavrs.com/)
 
 Copy config.py.in as config.py and fill it out with your prosthetic's keys.
 
@@ -9,12 +14,12 @@ Run:
 
 	python oauthorize.py
 
-And authorize a weavr. The OAuth keys for this authorization will be printed
+And authorize a Weavr. The OAuth keys for this authorization will be printed
 on the command line. Copy these somewhere you won't lose them.
 
 Next run:
 
      python dump.py KEY SECRET
 
-This will crate .gexf files of graphs of the keywords and emotions.
+This will create .gexf files of graphs of the keywords and emotions.
 
