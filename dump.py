@@ -24,7 +24,7 @@ import config
 import gexf
 import sys
 import urllib
-import weavrs
+import weavrs_wrapper
 
 
 ################################################################################
@@ -75,13 +75,11 @@ def dump_keywords_dynamic_nodes_and_edges(runs, now):
     gexf.keyword_durations_to_xml(stream, nodes, edges, node_start_times)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print "Usage: %s oauth-key oauth-secret" % sys.argv[0]
-        sys.exit(1)
-    access_token = sys.argv[1]
-    access_secret = sys.argv[2]
-    weavr = weavrs.WeavrApiConnection(config, access_token, access_secret)
-    runs, now = weavrs.weavr_runs_all(weavr) 
+
+    weavr = weavrs_wrapper.WeavrApiConnection(config)
+    config = weavr.request("/weavr/alien/configuration/")
+    runs, now = weavrs_wrapper.weavr_runs_all(weavr, config)
+
     dump_emotion_edges(runs, now)
     dump_emotion_nodes(runs, now)
     dump_keywords(runs, now)

@@ -22,7 +22,7 @@
 import cgi
 import time
 
-import weavrs
+import weavrs_wrapper
 
 ################################################################################
 # Utilities
@@ -213,10 +213,10 @@ class DynamicEdge(object):
 def keyword_edge_durations(runs):
     """Return a list of dynamic edges for the runs (excluding last run)"""
     edges = list()
-    current_time = weavrs.parse_datetime(runs[0]['datetime'])
+    current_time = weavrs_wrapper.parse_datetime(runs[0]['datetime'])
     current_edges = run_keyword_edges(runs[0])
     for run in runs[1:]:
-        next_time = weavrs.parse_datetime(run['datetime'])
+        next_time = weavrs_wrapper.parse_datetime(run['datetime'])
         for edge_pair, edge_weight in current_edges.iteritems():
             edges.append(DynamicEdge(edge_pair[0], edge_pair[1], current_time,
                                      next_time, edge_weight))

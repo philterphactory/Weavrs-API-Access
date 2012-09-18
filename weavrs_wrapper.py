@@ -21,16 +21,16 @@
 
 
 import datetime
-import oauth2 as oauth
 import simplejson as json
 import sys
 import time
 import urllib
+from weavrs.client import WeavrsClient
 
 
 # How long to delay between each call to the API for bulk operations
 call_delay_seconds = 0
-
+per_page=10
 
 ################################################################################
 # Date and time utilities
@@ -65,24 +65,12 @@ api_weavr_location = 'http://www.weavrs.com/api/1/weavr/location'
 class WeavrApiConnection(object):
     """A class to wrap up an OAuth connection to the Weavrs API"""
     
-    def __init__(self, config, access_token, access_secret):
-        """Create an OAuth client from the given token and secret"""
-        self.consumer = oauth.Consumer(config.consumer_key,
-                                       config.consumer_secret)
-        self.token = oauth.Token(access_token, access_secret)
-        self.client = oauth.Client(self.consumer, self.token)
+    def __init__(self, config):
+        self.client = WeavrsClient("weavrs-dev.appspot.com", config.consumer_key )
+
     
-    def request(self, url, args=None):
-        """Request the url using the OAuth client, with the dict args
-           urlencoded as the query string if provided"""
-        if args:
-            url = "%s?%s" % (url, urllib.urlencode(args))
-        response, content = self.client.request(url)
-        if response['status'] != '200':
-            print response
-            print content
-            raise Exception("Status code %s != 200" % response['status'])
-        return response, json.loads(content)
+    def request(self, url, **params):
+        return self.client.get(url, cache=False, **params)
 
 
 ################################################################################
@@ -92,8 +80,6 @@ class WeavrApiConnection(object):
 def weavr_created_at(weavr, content = None):
     """Get the datetime.datetime the weavr was created at, fetching content
        from the WeavrApiConnection weavr if content is None"""
-    if content == None:
-        response, content = weavr.request(api_weavr_configuration)
     created_at_string = content['created_at']
     # Convert to a datetime
     created_at = datetime.datetime.strptime(created_at_string,
@@ -105,7 +91,7 @@ def weavr_posts_between(weavr, start, end):
     args = {'after':format_datetime(start),
             'before':format_datetime(end),
             'per_page':1000}
-    response, content = weavr.request(api_weavr_post, args)
+    content = weavr.request(api_weavr_post, after=format_datetime(start), before=format_datetime(end), per_page=per_page)
     return content['posts']
 
 def weavr_posts_all(weavr, configuration = None, max_days=100):
@@ -136,7 +122,7 @@ def weavr_runs_between(weavr, start, end):
             'before':format_datetime(end),
             'posts':'true',
             'per_page':1000}
-    response, content = weavr.request(api_weavr_run, args)
+    content = weavr.request("/weavr/alien/run/", after=format_datetime(start), before=format_datetime(end), posts='true', per_page=per_page)
     return list(reversed(content['runs']))
 
 def weavr_runs_all(weavr, configuration = None, max_days=100):
@@ -166,7 +152,7 @@ def weavr_locations_between(weavr, start, end):
     args = {'after':format_datetime(start),
             'before':format_datetime(end),
             'per_page':1000}
-    response, content = weavr.request(api_weavr_location, args)
+    response, content = weavr.request(api_weavr_location, after=format_datetime(start), before=format_datetime(end), per_page=per_page)
     return content['locations']
 
 def weavr_locations_all(weavr, configuration = None, max_days=100):
