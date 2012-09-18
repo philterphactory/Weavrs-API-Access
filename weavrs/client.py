@@ -76,7 +76,3 @@ class WeavrsClient(object):
 
         return content
 
-
-
-
-

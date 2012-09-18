@@ -86,35 +86,6 @@ def weavr_created_at(weavr, content = None):
                                             "%Y-%m-%dT%H:%M:%SZ" )
     return created_at, content
 
-def weavr_posts_between(weavr, start, end):
-    """Get all the posts between start and end datetimes as parsed json"""
-    args = {'after':format_datetime(start),
-            'before':format_datetime(end),
-            'per_page':1000}
-    content = weavr.request(api_weavr_post, after=format_datetime(start), before=format_datetime(end), per_page=per_page)
-    return content['posts']
-
-def weavr_posts_all(weavr, configuration = None, max_days=100):
-    """Get all the posts since the weavr was created"""
-    created_at_datetime, configuration = weavr_created_at(weavr, configuration)
-    posts = []
-    now = datetime.datetime.now()
-    day = datetime_to_date(created_at_datetime)
-    day_finish = datetime_to_date(now)
-    # Make sure we don't exceed the API limit
-    max_days_delta = datetime.timedelta(max_days)
-    if day_finish - day > max_days_delta:
-        day = day_finish - max_days_delta
-    print "Getting posts from %s to %s" % (day, day_finish)
-    while day <= day_finish:
-        print "Getting posts up to: %s" % day
-        next_day = day + one_day
-        days_posts = weavr_posts_between(weavr, day, next_day)
-        print "(%s posts)" % len(days_posts)
-        posts += days_posts
-        day = next_day
-        time.sleep(call_delay_seconds)
-    return posts, now
 
 def weavr_runs_between(weavr, start, end):
     """Get the weavr's runs (including posts) between the given dates"""
@@ -146,36 +117,6 @@ def weavr_runs_all(weavr, configuration = None, max_days=100):
         day = next_day
         time.sleep(call_delay_seconds)
     return runs, now
-
-def weavr_locations_between(weavr, start, end):
-    """Get the weavr's locations between the given dates"""
-    args = {'after':format_datetime(start),
-            'before':format_datetime(end),
-            'per_page':1000}
-    response, content = weavr.request(api_weavr_location, after=format_datetime(start), before=format_datetime(end), per_page=per_page)
-    return content['locations']
-
-def weavr_locations_all(weavr, configuration = None, max_days=100):
-    """Get all the locations since the weavr was created"""
-    created_at_datetime, configuration = weavr_created_at(weavr, configuration)
-    locations = []
-    now = datetime.datetime.now()
-    day = datetime_to_date(created_at_datetime)
-    day_finish = datetime_to_date(now)
-    # Make sure we don't exceed the API limit
-    max_days_delta = datetime.timedelta(max_days)
-    if day_finish - day > max_days_delta:
-        day = day_finish - max_days_delta
-    print "Getting locations from %s to %s" % (day, day_finish)
-    while day <= day_finish:
-        print "Getting locations up to: %s" % day
-        next_day = day + one_day
-        days_locations = weavr_locations_between(weavr, day, next_day)
-        print "(%s locations)" % len(days_locations)
-        locations += days_locations
-        day = next_day
-        time.sleep(call_delay_seconds)
-    return locations, now
 
 
 ################################################################################
