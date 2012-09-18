@@ -2,3 +2,4 @@
 *.pyc
 *.gexf
 config.py
+.idea
