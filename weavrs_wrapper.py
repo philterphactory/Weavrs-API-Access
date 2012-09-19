@@ -26,11 +26,7 @@ import sys
 import time
 import urllib
 from weavrs.client import WeavrsClient
-
-
-# How long to delay between each call to the API for bulk operations
-call_delay_seconds = 0
-per_page=10
+import config
 
 ################################################################################
 # Date and time utilities
@@ -52,21 +48,10 @@ def parse_datetime(text):
     return datetime.datetime.strptime(text, '%Y-%m-%dT%H:%M:%SZ')
 
 
-################################################################################
-# Weavrs OAuth API Connection
-################################################################################
-
-api_weavr_configuration = 'http://www.weavrs.com/api/1/weavr/configuration/'
-api_weavr_state = 'http://www.weavrs.com/api/1/weavr/state/'
-api_weavr_post = 'http://www.weavrs.com/api/1/weavr/post'
-api_weavr_run = 'http://www.weavrs.com/api/1/weavr/run'
-api_weavr_location = 'http://www.weavrs.com/api/1/weavr/location'
-
 class WeavrApiConnection(object):
-    """A class to wrap up an OAuth connection to the Weavrs API"""
-    
+
     def __init__(self, config):
-        self.client = WeavrsClient("weavrs-dev.appspot.com", config.consumer_key )
+        self.client = WeavrsClient(config.api_server, config.consumer_key )
 
     
     def request(self, url, **params):
@@ -77,28 +62,24 @@ class WeavrApiConnection(object):
 # Weavrs API access
 ################################################################################
 
-def weavr_created_at(weavr, content = None):
+def weavr_created_at(weavr):
     """Get the datetime.datetime the weavr was created at, fetching content
        from the WeavrApiConnection weavr if content is None"""
-    created_at_string = content['created_at']
+    created_at_string = weavr['created_at']
     # Convert to a datetime
-    created_at = datetime.datetime.strptime(created_at_string,
-                                            "%Y-%m-%dT%H:%M:%SZ" )
-    return created_at, content
+    created_at = datetime.datetime.strptime(created_at_string, "%Y-%m-%dT%H:%M:%SZ" )
+    return created_at
 
 
-def weavr_runs_between(weavr, start, end):
+def weavr_runs_between(connection, weavr, start, end):
     """Get the weavr's runs (including posts) between the given dates"""
-    args = {'after':format_datetime(start),
-            'before':format_datetime(end),
-            'posts':'true',
-            'per_page':1000}
-    content = weavr.request("/weavr/alien/run/", after=format_datetime(start), before=format_datetime(end), posts='true', per_page=per_page)
+    name = weavr["name"]
+    content = connection.request("/weavr/%s/run/" % name, after=format_datetime(start), before=format_datetime(end), posts='true', per_page=config.per_page)
     return list(reversed(content['runs']))
 
-def weavr_runs_all(weavr, configuration = None, max_days=100):
+def weavr_runs_all(connection, weavr = None, max_days=100):
     """Get all the runs since the weavr was created"""
-    created_at_datetime, configuration = weavr_created_at(weavr, configuration)
+    created_at_datetime = weavr_created_at(weavr)
     runs = []
     now = datetime.datetime.now()
     day = datetime_to_date(created_at_datetime)
@@ -111,27 +92,33 @@ def weavr_runs_all(weavr, configuration = None, max_days=100):
     while day <= day_finish:
         print "Getting runs up to: %s" % day
         next_day = day + one_day
-        days_runs = weavr_runs_between(weavr, day, next_day)
+        days_runs = weavr_runs_between(connection, weavr, day, next_day)
         print "(%s runs)" % len(days_runs)
         runs += days_runs
         day = next_day
-        time.sleep(call_delay_seconds)
+        time.sleep(config.call_delay_seconds)
     return runs, now
 
+def weavr_runs_by_days(connection, weavr = None, days=0):
 
-################################################################################
-# Post formatting
-################################################################################
+    runs = []
 
-def format_post(stream, post):
-    """Print post to stream in tab separated values format"""
-    print >>stream, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % \
-        (post['weavr'], post['run'], post['id'], post['post_id'],
-         post['blog_post_datetime'], post['category'], post['source'],
-         post['emotion'], post['keywords'])
+    created_at_datetime = weavr_created_at(weavr)
+    now = datetime.datetime.now()
+    day_finish = datetime_to_date(now)
 
-def format_posts(stream, posts):
-    """Print a header and each post to stream in tab separated values format"""
-    print >>stream, "weavr\trun\tid\tpost_id\tblog_post_datetime\tcategory\tsource\temotion\tkeywords"
-    for post in posts:
-        format_post(stream, post)
+    if days > config.max_days:
+        days = config.max_days
+
+    day = day_finish - datetime.timedelta(days)
+
+    print "Getting runs from %s to %s" % (day, day_finish)
+    while day <= day_finish:
+        print "Getting runs up to: %s" % day
+        next_day = day + one_day
+        days_runs = weavr_runs_between(connection, weavr, day, next_day)
+        print "(%s runs)" % len(days_runs)
+        runs += days_runs
+        day = next_day
+        time.sleep(config.call_delay_seconds)
+    return runs, now

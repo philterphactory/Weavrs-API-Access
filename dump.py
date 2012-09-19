@@ -20,11 +20,10 @@
 ################################################################################
 
 import codecs
+import weavrs_wrapper
 import config
 import gexf
-import sys
 import urllib
-import weavrs_wrapper
 
 
 ################################################################################
@@ -76,9 +75,9 @@ def dump_keywords_dynamic_nodes_and_edges(runs, now):
 
 if __name__ == '__main__':
 
-    weavr = weavrs_wrapper.WeavrApiConnection(config)
-    config = weavr.request("/weavr/alien/configuration/")
-    runs, now = weavrs_wrapper.weavr_runs_all(weavr, config)
+    connection = weavrs_wrapper.WeavrApiConnection(config)
+    weavr = connection.request("/weavr/alien/configuration/")
+    runs, now = weavrs_wrapper.weavr_runs_by_days(connection, weavr)
 
     dump_emotion_edges(runs, now)
     dump_emotion_nodes(runs, now)

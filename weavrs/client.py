@@ -1,11 +1,6 @@
 import logging
-
-from hashlib import md5
-
 import urllib
 import httplib2
-
-
 
 try:
     from django.utils import simplejson as json
@@ -30,7 +25,7 @@ class WeavrsClient(object):
         return self.get("/find/user/", False, email=email)
 
     def get(self, path, cache=True, **params):
-        url = "http://%s/%s%s" % (self.server, WeavrsClient.API_PATH, path)
+        url = "https://%s/%s%s" % (self.server, WeavrsClient.API_PATH, path)
 
         if params:
             # Don't add request param if value is None
@@ -54,7 +49,7 @@ class WeavrsClient(object):
         return content
 
     def post(self, path, **params):
-        url = "http://%s/%s%s" % (self.server, WeavrsClient.API_PATH, path)
+        url = "https://%s/%s%s" % (self.server, WeavrsClient.API_PATH, path)
 
         if params:
             # Don't add request param if value is None
