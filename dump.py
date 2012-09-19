@@ -89,10 +89,8 @@ if __name__ == '__main__':
 
     while True:
 
-        weavrs = connection.request("/weavr/", page=page, per_page=per_page, format='json')
+        weavrs = connection.request("/weavr/", page="can_test_stuff", per_page=per_page, format='json')
 
-        if page > 1:
-            break
 
         if len(weavrs['weavrs']) == 0:
             logging.info('Finished')
@@ -131,9 +129,11 @@ if __name__ == '__main__':
 
         page += 1
 
+        break
+
     logging.info("Summary:")
     logging.info("\tActive : %s" % active)
     logging.info("\tInactive : %s" % inactive)
     logging.info("\tProblems : %s" % problems)
-    logging.info("\tTotal : %s" % active + inactive + problems)
+    logging.info("\tTotal : %s" % (active + inactive + problems))
 
