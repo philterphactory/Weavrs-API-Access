@@ -21,12 +21,10 @@
 
 
 import datetime
-import simplejson as json
-import sys
 import time
-import urllib
 from weavrs.client import WeavrsClient
 import config
+import logging
 
 ################################################################################
 # Date and time utilities
@@ -88,12 +86,12 @@ def weavr_runs_all(connection, weavr = None, max_days=100):
     max_days_delta = datetime.timedelta(max_days)
     if day_finish - day > max_days_delta:
         day = day_finish - max_days_delta
-    print "Getting runs from %s to %s" % (day, day_finish)
+    logging.info("Getting runs for [%s] from %s to %s" % (weavr['name'], day, day_finish))
     while day <= day_finish:
-        print "Getting runs up to: %s" % day
+        logging.debug("Getting runs up to: %s" % day)
         next_day = day + one_day
         days_runs = weavr_runs_between(connection, weavr, day, next_day)
-        print "(%s runs)" % len(days_runs)
+        logging.debug("(%s runs)" % len(days_runs))
         runs += days_runs
         day = next_day
         time.sleep(config.call_delay_seconds)
@@ -112,12 +110,12 @@ def weavr_runs_by_days(connection, weavr = None, days=0):
 
     day = day_finish - datetime.timedelta(days)
 
-    print "Getting runs from %s to %s" % (day, day_finish)
+    logging.info("Getting runs from %s to %s" % (day, day_finish))
     while day <= day_finish:
-        print "Getting runs up to: %s" % day
+        logging.debug("Getting runs up to: %s" % day)
         next_day = day + one_day
         days_runs = weavr_runs_between(connection, weavr, day, next_day)
-        print "(%s runs)" % len(days_runs)
+        logging.debug("(%s runs)" % len(days_runs))
         runs += days_runs
         day = next_day
         time.sleep(config.call_delay_seconds)

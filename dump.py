@@ -24,6 +24,7 @@ import weavrs_wrapper
 import config
 import gexf
 import urllib
+import logging
 
 
 ################################################################################
@@ -75,12 +76,64 @@ def dump_keywords_dynamic_nodes_and_edges(runs, now):
 
 if __name__ == '__main__':
 
-    connection = weavrs_wrapper.WeavrApiConnection(config)
-    weavr = connection.request("/weavr/alien/configuration/")
-    runs, now = weavrs_wrapper.weavr_runs_by_days(connection, weavr)
+    logging.getLogger().setLevel(config.logging_level)
 
-    dump_emotion_edges(runs, now)
-    dump_emotion_nodes(runs, now)
-    dump_keywords(runs, now)
-    dump_keywords_dynamic_edges(runs, now)
-    dump_keywords_dynamic_nodes_and_edges(runs, now)
+    connection = weavrs_wrapper.WeavrApiConnection(config)
+
+    page = 0
+    per_page = 100
+
+    active = 0
+    inactive = 0
+    problems = 0
+
+    while True:
+
+        weavrs = connection.request("/weavr/", page=page, per_page=per_page, format='json')
+
+        if page > 1:
+            break
+
+        if len(weavrs['weavrs']) == 0:
+            logging.info('Finished')
+            break
+
+        for weavr in weavrs['weavrs']:
+
+            name = weavr['name']
+
+            # double try so we always get (in)active
+            try:
+
+                if bool(weavr['active']):
+
+                    active += 1
+
+                    try:
+                        runs, now = weavrs_wrapper.weavr_runs_by_days(connection, weavr)
+
+                        dump_emotion_edges(runs, now)
+                        dump_emotion_nodes(runs, now)
+                        dump_keywords(runs, now)
+                        dump_keywords_dynamic_edges(runs, now)
+                        dump_keywords_dynamic_nodes_and_edges(runs, now)
+                    except:
+                        logging.info("Exception [%s]" % name)
+                        problems += 1
+
+                else:
+                    logging.info("Inactive [%s]" % name)
+                    inactive += 1
+
+            except:
+                logging.info("Exception [%s]" % name)
+                problems += 1
+
+        page += 1
+
+    logging.info("Summary:")
+    logging.info("\tActive : %s" % active)
+    logging.info("\tInactive : %s" % inactive)
+    logging.info("\tProblems : %s" % problems)
+    logging.info("\tTotal : %s" % active + inactive + problems)
+

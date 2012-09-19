@@ -37,13 +37,13 @@ class WeavrsClient(object):
             url = "%s?%s" % (url, encoded_query_path)
 
         http = httplib2.Http()
-        print url
+        logging.debug(url)
         resp, content = http.request(url, "GET", headers={'Authorization': self.consumer_key} )
 
         try:
             content = json.loads(content)
         except ValueError:
-            logging.warn("Can't decode response: %s"%content)
+            logging.debug("Can't decode response: %s" % content)
             raise
 
         return content
