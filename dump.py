@@ -25,6 +25,7 @@ import config
 import gexf
 import urllib
 import logging
+import datetime
 
 
 ################################################################################
@@ -74,6 +75,17 @@ def dump_keywords_dynamic_nodes_and_edges(runs, now):
                          encoding='utf-8', mode='w')
     gexf.keyword_durations_to_xml(stream, nodes, edges, node_start_times)
 
+def dump_keywords_dynamic_nodes_and_edges(runs, name, now):
+
+    nodes = gexf.runs_keywords(runs)
+    edges = gexf.keyword_edge_durations(runs)
+    node_start_times = gexf.keywords_first_run_times(runs, nodes)
+    stream = codecs.open("%s-keywords-dynamic-nodes-and-edges-%s.gexf" %
+                         (name,
+                          now.strftime('%Y-%m-%d-%H-%M-%S')),
+        encoding='utf-8', mode='w')
+    gexf.keyword_durations_to_xml(stream, nodes, edges, node_start_times)
+
 if __name__ == '__main__':
 
     logging.getLogger().setLevel(config.logging_level)
@@ -86,6 +98,7 @@ if __name__ == '__main__':
     active = 0
     inactive = 0
     problems = 0
+    all_runs = []
 
     while True:
 
@@ -95,6 +108,9 @@ if __name__ == '__main__':
         if len(weavrs['weavrs']) == 0:
             logging.info('Finished')
             break
+
+        # for all weavrs
+
 
         for weavr in weavrs['weavrs']:
 
@@ -110,11 +126,12 @@ if __name__ == '__main__':
                     try:
                         runs, now = weavrs_wrapper.weavr_runs_by_days(connection, weavr)
 
-                        dump_emotion_edges(runs, now)
-                        dump_emotion_nodes(runs, now)
-                        dump_keywords(runs, now)
-                        dump_keywords_dynamic_edges(runs, now)
-                        dump_keywords_dynamic_nodes_and_edges(runs, now)
+                        all_runs.append(runs)
+                        #dump_emotion_edges(runs, now)
+                        #dump_emotion_nodes(runs, now)
+                        #dump_keywords(runs, now)
+                        #dump_keywords_dynamic_edges(runs, now)
+                        #dump_keywords_dynamic_nodes_and_edges(runs, urllib.quote(runs[0]['weavr']), now)
                     except:
                         logging.info("Exception [%s]" % name)
                         problems += 1
@@ -130,6 +147,8 @@ if __name__ == '__main__':
         page += 1
 
         break
+
+    dump_keywords_dynamic_nodes_and_edges(all_runs, "all", datetime.datetime.now())
 
     logging.info("Summary:")
     logging.info("\tActive : %s" % active)
