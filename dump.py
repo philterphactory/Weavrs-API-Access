@@ -3,7 +3,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or 
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -37,7 +37,7 @@ def dump_emotion_edges(runs, now):
     stream = codecs.open("%s-emotion-edges-%s.gexf" %
                          (urllib.quote(runs[0]['weavr']),
                           now.strftime('%Y-%m-%d-%H-%M-%S')),
-                         encoding='utf-8', mode='w')
+        encoding='utf-8', mode='w')
     gexf.emotion_edge_graph_to_xml(stream, nodes, edges)
 
 def dump_emotion_nodes(runs, now):
@@ -45,24 +45,24 @@ def dump_emotion_nodes(runs, now):
     stream = codecs.open("%s-emotion-nodes-%s.gexf" %
                          (urllib.quote(runs[0]['weavr']),
                           now.strftime('%Y-%m-%d-%H-%M-%S')),
-                         encoding='utf-8', mode='w')
+        encoding='utf-8', mode='w')
     gexf.emotion_node_graph_to_xml(stream, nodes, edges)
 
 def dump_keywords(runs, now):
     nodes, edges = gexf.keyword_graph(runs)
     stream = codecs.open("%s-keywords-%s.gexf" %
-                  (urllib.quote(runs[0]['weavr']),
-                   now.strftime('%Y-%m-%d-%H-%M-%S')),
-                         encoding='utf-8', mode='w')
+                         (urllib.quote(runs[0]['weavr']),
+                          now.strftime('%Y-%m-%d-%H-%M-%S')),
+        encoding='utf-8', mode='w')
     gexf.keyword_graph_to_xml(stream, nodes, edges)
 
 def dump_keywords_dynamic_edges(runs, now):
     nodes = gexf.runs_keywords(runs)
     edges = gexf.keyword_edge_durations(runs)
     stream = codecs.open("%s-keywords-dynamic-edges-%s.gexf" %
-                  (urllib.quote(runs[0]['weavr']),
-                   now.strftime('%Y-%m-%d-%H-%M-%S')),
-                         encoding='utf-8', mode='w')
+                         (urllib.quote(runs[0]['weavr']),
+                          now.strftime('%Y-%m-%d-%H-%M-%S')),
+        encoding='utf-8', mode='w')
     gexf.keyword_durations_to_xml(stream, nodes, edges)
 
 def dump_keywords_dynamic_nodes_and_edges(runs, now):
@@ -85,8 +85,8 @@ if __name__ == '__main__':
 
     connection = weavrs_wrapper.WeavrApiConnection(config)
 
-    page = 0
-    per_page = 100
+    page = 1
+    per_page = 50
 
     active = 0
     inactive = 0
@@ -95,11 +95,8 @@ if __name__ == '__main__':
 
     while True:
 
-        weavrs = connection.request("/weavr/", page="can_test_stuff", per_page=per_page, format='json')
-
-        if len(weavrs['weavrs']) == 0:
-            logging.info('Finished')
-            break
+        # this is hacked for now - pagination on GAE/P isn't working
+        weavrs = connection.request("/weavr/", page=page, per_page=per_page, format='json')
 
         for weavr in weavrs['weavrs']:
 
@@ -135,7 +132,9 @@ if __name__ == '__main__':
 
         page += 1
 
-        break
+        # that was the last page
+        if len(weavrs['weavrs']) < per_page:
+            break
 
     dump_keywords_dynamic_nodes_and_edges_named(all_runs, "all", datetime.datetime.now())
 
@@ -144,4 +143,3 @@ if __name__ == '__main__':
     logging.info("\tInactive : %s" % inactive)
     logging.info("\tProblems : %s" % problems)
     logging.info("\tTotal : %s" % (active + inactive + problems))
-
