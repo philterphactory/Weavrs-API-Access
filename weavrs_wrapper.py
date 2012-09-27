@@ -120,3 +120,25 @@ def weavr_runs_by_days(connection, weavr = None, days=0):
         day = next_day
         time.sleep(config.call_delay_seconds)
     return runs, now
+
+def weavr_runs_by_day_range(connection, weavr = None, start=0, end = 0):
+    """ e.g. start = 1, end = 8 means from one day to eight days ago
+    """
+    runs = []
+
+    now = datetime.datetime.now()
+    today = datetime_to_date(now)
+    start_day = today - datetime.timedelta(start - 1)
+    end_day = today - datetime.timedelta(end)
+
+    logging.info("Getting runs from %s to %s" % (end_day, start_day))
+
+    while end_day <= start_day:
+        logging.debug("Getting runs up to: %s" % start_day)
+        next_day = end_day + one_day
+        days_runs = weavr_runs_between(connection, weavr, end_day, next_day)
+        logging.debug("(%s runs)" % len(days_runs))
+        runs += days_runs
+        end_day = next_day
+        time.sleep(config.call_delay_seconds)
+    return runs, now

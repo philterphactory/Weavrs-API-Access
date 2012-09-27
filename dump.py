@@ -27,6 +27,7 @@ import urllib
 import logging
 import datetime
 import sys
+import pdb
 
 
 ################################################################################
@@ -94,10 +95,14 @@ if __name__ == '__main__':
     problems = 0
     all_runs = []
 
-    days = 0
+    start = 0
+    end = 0
 
     if len(sys.argv) > 1:
-        days = int(sys.argv[1])
+        start = int(sys.argv[1])
+
+    if len(sys.argv) > 2:
+        end = int(sys.argv[2])
 
     while True:
 
@@ -115,7 +120,7 @@ if __name__ == '__main__':
                     active += 1
 
                     try:
-                        runs, now = weavrs_wrapper.weavr_runs_by_days(connection, weavr, days=days)
+                        runs, now = weavrs_wrapper.weavr_runs_by_day_range(connection, weavr, start=start, end=end)
                         all_runs.extend(runs)
 
                         #dump_emotion_edges(runs, now)
@@ -141,10 +146,13 @@ if __name__ == '__main__':
         if len(weavrs['weavrs']) < per_page:
             break
 
-    dump_keywords_dynamic_nodes_and_edges_named(all_runs, "all", datetime.datetime.now())
+        break
 
+    dump_keywords_dynamic_nodes_and_edges_named(all_runs, "all", datetime.datetime.now())
+    pdb.set_trace()
     logging.info("Summary:")
     logging.info("\tActive : %s" % active)
     logging.info("\tInactive : %s" % inactive)
     logging.info("\tProblems : %s" % problems)
     logging.info("\tTotal : %s" % (active + inactive + problems))
+    pdb.set_trace()
