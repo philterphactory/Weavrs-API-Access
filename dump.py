@@ -26,6 +26,7 @@ import gexf
 import urllib
 import logging
 import datetime
+import sys
 
 
 ################################################################################
@@ -93,9 +94,13 @@ if __name__ == '__main__':
     problems = 0
     all_runs = []
 
+    days = 0
+
+    if len(sys.argv) > 1:
+        days = int(sys.argv[1])
+
     while True:
 
-        # this is hacked for now - pagination on GAE/P isn't working
         weavrs = connection.request("/weavr/", page=page, per_page=per_page, format='json')
 
         for weavr in weavrs['weavrs']:
@@ -110,7 +115,7 @@ if __name__ == '__main__':
                     active += 1
 
                     try:
-                        runs, now = weavrs_wrapper.weavr_runs_by_days(connection, weavr)
+                        runs, now = weavrs_wrapper.weavr_runs_by_days(connection, weavr, days=days)
                         all_runs.extend(runs)
 
                         #dump_emotion_edges(runs, now)
