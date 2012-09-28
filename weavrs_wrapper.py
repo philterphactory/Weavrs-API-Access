@@ -133,12 +133,10 @@ def weavr_runs_by_day_range(connection, weavr = None, start=0, end = 0):
 
     logging.info("Getting runs from %s to %s" % (end_day, start_day))
 
-    while end_day <= start_day:
-        logging.debug("Getting runs up to: %s" % start_day)
-        next_day = end_day + one_day
-        days_runs = weavr_runs_between(connection, weavr, end_day, next_day)
+    if end_day <= start_day:
+        days_runs = weavr_runs_between(connection, weavr, end_day, start_day)
         logging.debug("(%s runs)" % len(days_runs))
         runs += days_runs
-        end_day = next_day
         time.sleep(config.call_delay_seconds)
+
     return runs, now
