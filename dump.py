@@ -27,7 +27,6 @@ import urllib
 import logging
 import datetime
 import sys
-import pdb
 
 
 ################################################################################
@@ -149,10 +148,8 @@ if __name__ == '__main__':
         break
 
     dump_keywords_dynamic_nodes_and_edges_named(all_runs, "all", datetime.datetime.now())
-    pdb.set_trace()
     logging.info("Summary:")
     logging.info("\tActive : %s" % active)
     logging.info("\tInactive : %s" % inactive)
     logging.info("\tProblems : %s" % problems)
     logging.info("\tTotal : %s" % (active + inactive + problems))
-    pdb.set_trace()
