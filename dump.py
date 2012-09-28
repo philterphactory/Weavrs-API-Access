@@ -145,8 +145,6 @@ if __name__ == '__main__':
         if len(weavrs['weavrs']) < per_page:
             break
 
-        break
-
     dump_keywords_dynamic_nodes_and_edges_named(all_runs, "all", datetime.datetime.now())
     logging.info("Summary:")
     logging.info("\tActive : %s" % active)
