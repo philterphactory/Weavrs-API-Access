@@ -131,7 +131,7 @@ def weavr_runs_by_day_range(connection, weavr = None, start=0, end = 0):
     start_day = today - datetime.timedelta(start - 1)
     end_day = today - datetime.timedelta(end)
 
-    logging.info("Getting runs from %s to %s" % (end_day, start_day))
+    logging.info("Getting runs for %s from %s to %s" % (weavr['name'], end_day, start_day))
 
     if end_day <= start_day:
         days_runs = weavr_runs_between(connection, weavr, end_day, start_day)

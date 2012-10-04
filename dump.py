@@ -129,6 +129,7 @@ if __name__ == '__main__':
                         #dump_keywords_dynamic_nodes_and_edges(runs, urllib.quote(runs[0]['weavr']), now)
                     except:
                         logging.info("Exception [%s]" % name)
+                        print "Unexpected error:", sys.exc_info()[0]
                         problems += 1
 
                 else:
@@ -137,6 +138,7 @@ if __name__ == '__main__':
 
             except:
                 logging.info("Exception [%s]" % name)
+                print "Unexpected error:", sys.exc_info()[0]
                 problems += 1
 
         page += 1
@@ -145,7 +147,9 @@ if __name__ == '__main__':
         if len(weavrs['weavrs']) < per_page:
             break
 
+
     dump_keywords_dynamic_nodes_and_edges_named(all_runs, "all", datetime.datetime.now())
+
     logging.info("Summary:")
     logging.info("\tActive : %s" % active)
     logging.info("\tInactive : %s" % inactive)
