@@ -27,6 +27,7 @@ import urllib
 import logging
 import datetime
 import sys
+import simplejson
 
 
 ################################################################################
@@ -79,6 +80,26 @@ def dump_keywords_dynamic_nodes_and_edges_named(runs, name, now):
                           now.strftime('%Y-%m-%d-%H-%M-%S')),
         encoding='utf-8', mode='w')
     gexf.keyword_durations_to_xml(stream, nodes, edges, node_start_times)
+
+def dump_runs(filename, runs):
+
+    stream = codecs.open(filename, encoding='utf-8', mode='w')
+
+    print >>stream, u'{ "runs":['
+
+    total = len(runs)
+    count = 0
+    for run in runs:
+        if count < total - 1:
+            comma = ','
+        else:
+            comma = ''
+        print >> stream, u'%s%s' % (simplejson.dumps(run), comma)
+        count += 1
+
+    print >>stream, u']}'
+
+
 
 if __name__ == '__main__':
 
@@ -148,7 +169,9 @@ if __name__ == '__main__':
             break
 
 
-    dump_keywords_dynamic_nodes_and_edges_named(all_runs, "all", datetime.datetime.now())
+    #dump_keywords_dynamic_nodes_and_edges_named(all_runs, "all", datetime.datetime.now())
+
+    dump_runs("/tmp/loom-runs.json", all_runs)
 
     logging.info("Summary:")
     logging.info("\tActive : %s" % active)
