@@ -162,7 +162,12 @@ if __name__ == '__main__':
                 print "Unexpected error:", sys.exc_info()[0]
                 problems += 1
 
+            #break
+
         page += 1
+
+        #if len(all_runs) > 0:
+        #    break
 
         # that was the last page
         if len(weavrs['weavrs']) < per_page:
