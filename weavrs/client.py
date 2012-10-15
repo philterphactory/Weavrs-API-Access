@@ -38,7 +38,7 @@ class WeavrsClient(object):
 
         http = httplib2.Http()
         logging.debug(url)
-        resp, content = http.request(url, "GET", headers={'Authorization': self.consumer_key} )
+        resp, content = http.request(url, "GET", headers={'Authorization': self.consumer_key, "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:15.0) Gecko/20100101 Firefox/15.0.1"} )
 
         try:
             content = json.loads(content)
